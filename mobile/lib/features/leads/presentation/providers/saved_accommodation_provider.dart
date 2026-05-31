@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../core/api/api_client.dart';
 import '../../../../core/utils/errors/api_error_handler.dart';
-import '../../discovery/domain/accommodation_model.dart';
+import '../../../discovery/domain/accommodation_model.dart';
 
 part 'saved_accommodation_provider.g.dart';
 

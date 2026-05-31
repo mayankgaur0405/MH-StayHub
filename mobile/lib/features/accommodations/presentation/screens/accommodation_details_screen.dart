@@ -7,6 +7,7 @@ import '../../../../core/utils/analytics_tracker.dart';
 import '../../../../core/utils/share_utils.dart';
 import '../../../../core/utils/errors/error_view.dart';
 import '../../../../core/utils/loading/full_screen_loader.dart';
+import '../../../leads/presentation/providers/saved_accommodation_provider.dart';
 import '../providers/accommodation_details_provider.dart';
 
 class AccommodationDetailsScreen extends ConsumerStatefulWidget {

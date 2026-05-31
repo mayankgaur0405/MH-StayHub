@@ -1,5 +1,4 @@
 import 'package:flutter/services.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'analytics_tracker.dart';
 
@@ -9,7 +8,7 @@ class ShareUtils {
   static Future<void> nativeShare(String slug, String name, String id) async {
     final url = '$baseUrl/$slug';
     AnalyticsTracker.trackShareProperty(id, 'native');
-    await Share.share('Check out $name on MH StayHub! 🏠\n$url');
+    await Clipboard.setData(ClipboardData(text: 'Check out $name on MH StayHub!\n$url'));
   }
 
   static Future<void> copyLink(String slug, String id) async {

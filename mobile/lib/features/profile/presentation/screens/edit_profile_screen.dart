@@ -113,7 +113,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         return;
                       }
 
-                      final success = await ref.read(updateProfileProvider.notifier).update(
+                      final success = await ref.read(updateProfileProvider.notifier).submit(
                         name: name,
                         email: email.isNotEmpty ? email : null,
                       );

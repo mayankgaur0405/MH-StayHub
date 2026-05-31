@@ -1,4 +1,4 @@
-import '../domain/user_model.dart';
+import '../../domain/user_model.dart';
 
 abstract class AuthState {
   const AuthState();

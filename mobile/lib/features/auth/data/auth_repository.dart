@@ -19,7 +19,7 @@ class AuthRepository {
     }
   }
 
-  Future<{User user, String token}> verifyOTP(String phone, String otp) async {
+  Future<({User user, String token})> verifyOTP(String phone, String otp) async {
     try {
       final response = await _dio.post('/auth/verify-otp', data: {
         'phone': phone,
@@ -28,7 +28,7 @@ class AuthRepository {
 
       final data = response.data['data'];
       final user = User.fromJson(data['user']);
-      final token = data['token'];
+      final token = data['token'] as String;
 
       return (user: user, token: token);
     } on DioException catch (e) {

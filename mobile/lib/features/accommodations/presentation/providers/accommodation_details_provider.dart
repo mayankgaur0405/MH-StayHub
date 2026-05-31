@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../discovery/domain/accommodation_model.dart';
-import '../data/accommodation_details_repository.dart';
+import '../../../discovery/domain/accommodation_model.dart';
+import '../../data/accommodation_details_repository.dart';
 
 part 'accommodation_details_provider.g.dart';
 
