@@ -1,19 +1,32 @@
 const jwt = require('jsonwebtoken');
 const User = require('../users/user.model');
 
-// Mock OTP for dev-bypass: "123456"
+const MOCK_OTP = '123456';
+const isMsg91Configured = Boolean(process.env.MSG91_AUTH_KEY && process.env.MSG91_TEMPLATE_ID);
+
 const sendOtp = async (req, res) => {
   try {
     const { phone } = req.body;
     if (!phone) return res.status(400).json({ message: 'Phone number is required' });
 
-    // In production, integrate MSG91 here:
+    // MVP fallback: keep OTP login available until MSG91 credentials are added.
+    if (!isMsg91Configured) {
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      return res.status(200).json({
+        message: `OTP sent successfully (MVP mock mode: use ${MOCK_OTP})`,
+        success: true,
+        mock: true,
+      });
+    }
+
+    // TODO: Integrate MSG91 here when production SMS delivery is enabled.
     // await axios.post(`msg91_url?authkey=${process.env.MSG91_AUTH_KEY}&mobiles=${phone}...`)
     
     // Simulating delay
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    res.status(200).json({ message: 'OTP sent successfully (Dev bypass: use 123456)', success: true });
+    res.status(200).json({ message: `OTP sent successfully (MVP mock mode: use ${MOCK_OTP})`, success: true, mock: true });
   } catch (error) {
     res.status(500).json({ message: error.message, success: false });
   }
@@ -24,8 +37,8 @@ const verifyOtp = async (req, res) => {
     const { phone, otp, name } = req.body;
     if (!phone || !otp) return res.status(400).json({ message: 'Phone and OTP required' });
 
-    // Dev bypass for MVP
-    if (otp !== '123456') {
+    // MVP mock verification until MSG91 verification is enabled.
+    if (otp !== MOCK_OTP) {
       return res.status(400).json({ message: 'Invalid OTP', success: false });
     }
 

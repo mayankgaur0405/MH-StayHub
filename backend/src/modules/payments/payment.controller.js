@@ -3,16 +3,33 @@ const crypto = require('crypto');
 const Payment = require('./payment.model');
 const Lead = require('../leads/lead.model');
 
-// Using placeholders if env vars are missing.
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder',
-  key_secret: process.env.RAZORPAY_KEY_SECRET || 'rzp_secret_placeholder',
-});
+const isRazorpayConfigured = Boolean(
+  process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET
+);
+
+const razorpay = isRazorpayConfigured
+  ? new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    })
+  : null;
 
 const PRIORITY_HOLD_AMOUNT = 99; // MVP amount in INR
+const PAYMENT_NOT_CONFIGURED_MESSAGE = 'Payment service not configured';
+
+const sendPaymentNotConfigured = (res) => {
+  return res.status(503).json({
+    success: false,
+    message: PAYMENT_NOT_CONFIGURED_MESSAGE,
+  });
+};
 
 const createOrder = async (req, res) => {
   try {
+    if (!isRazorpayConfigured) {
+      return sendPaymentNotConfigured(res);
+    }
+
     const { accommodationId } = req.body;
     if (!accommodationId) {
       return res.status(400).json({ success: false, message: 'Accommodation ID is required' });
@@ -53,6 +70,10 @@ const createOrder = async (req, res) => {
 
 const verifyPayment = async (req, res) => {
   try {
+    if (!isRazorpayConfigured) {
+      return sendPaymentNotConfigured(res);
+    }
+
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
@@ -71,9 +92,8 @@ const verifyPayment = async (req, res) => {
     }
 
     // 3. Verify Signature
-    const key_secret = process.env.RAZORPAY_KEY_SECRET || 'rzp_secret_placeholder';
     const body = razorpay_order_id + '|' + razorpay_payment_id;
-    const expectedSignature = crypto.createHmac('sha256', key_secret)
+    const expectedSignature = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
                                     .update(body.toString())
                                     .digest('hex');
 
@@ -114,7 +134,11 @@ const verifyPayment = async (req, res) => {
 // Webhook endpoint preparation for future use
 const webhookVerification = async (req, res) => {
   try {
-    const secret = process.env.RAZORPAY_WEBHOOK_SECRET || 'webhook_secret';
+    if (!process.env.RAZORPAY_WEBHOOK_SECRET) {
+      return sendPaymentNotConfigured(res);
+    }
+
+    const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
     const signature = req.headers['x-razorpay-signature'];
     
     const isValid = crypto.createHmac('sha256', secret)
