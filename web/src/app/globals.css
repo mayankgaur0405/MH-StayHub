@@ -1,50 +1,87 @@
 @import "tailwindcss";
 
 /* ============================================
-   MH StayHub - Design System
-   Premium color palette + utility variables
+   MH StayHub - Design System v2
+   Unified color palette, dark/light mode,
+   consistent surface tokens across the site.
    ============================================ */
 
 :root {
-  /* Brand Colors */
-  --brand-primary: #6C3CE1;       /* Deep Purple - Trust & Premium */
+  /* Brand Colors — same in both modes */
+  --brand-primary: #6C3CE1;
   --brand-primary-light: #8B5CF6;
   --brand-primary-dark: #5521C5;
-  --brand-secondary: #14B8A6;     /* Teal - Fresh & Inviting */
-  --brand-accent: #F59E0B;        /* Amber - Attention & CTA */
+  --brand-secondary: #14B8A6;
+  --brand-accent: #F59E0B;
 
-  /* Surfaces */
-  --background: #FAFAFA;
-  --foreground: #111827;
-  --surface: #FFFFFF;
-  --surface-hover: #F3F4F6;
-  --muted: #6B7280;
-  --border: #E5E7EB;
-
-  /* Semantic */
+  /* Semantic — same in both modes */
   --success: #10B981;
   --warning: #F59E0B;
   --danger: #EF4444;
   --info: #3B82F6;
-
-  /* Verification badges */
   --verified: #10B981;
   --premium-verified: #F59E0B;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-
-  /* Radius */
+  /* Radius tokens */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   --radius-full: 9999px;
+
+  /* ===== LIGHT MODE SURFACES ===== */
+  --background: #F8F9FC;
+  --foreground: #111827;
+  --surface: #FFFFFF;
+  --surface-alt: #F1F3F8;
+  --surface-hover: #EEF0F6;
+  --muted: #6B7280;
+  --border: #E2E5EC;
+
+  /* Shadows — light */
+  --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px -2px rgba(0,0,0,0.06), 0 2px 4px -2px rgba(0,0,0,0.04);
+  --shadow-lg: 0 12px 24px -4px rgba(0,0,0,0.07), 0 4px 8px -4px rgba(0,0,0,0.04);
+  --shadow-xl: 0 24px 48px -8px rgba(0,0,0,0.08), 0 8px 16px -6px rgba(0,0,0,0.04);
+
+  /* Navbar */
+  --nav-bg: rgba(255,255,255,0.82);
+  --nav-border: rgba(0,0,0,0.06);
+
+  /* Footer */
+  --footer-bg: #0F1219;
+  --footer-text: #9CA3AF;
+  --footer-heading: #F9FAFB;
+  --footer-border: #1F2937;
 }
 
+[data-theme='dark'] {
+  --background: #0B0F19;
+  --foreground: #F1F3F8;
+  --surface: #131825;
+  --surface-alt: #161C2C;
+  --surface-hover: #1C2333;
+  --muted: #8B95A8;
+  --border: #252D3D;
+
+  /* Shadows — dark */
+  --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px -2px rgba(0,0,0,0.4), 0 2px 4px -2px rgba(0,0,0,0.3);
+  --shadow-lg: 0 12px 24px -4px rgba(0,0,0,0.5), 0 4px 8px -4px rgba(0,0,0,0.3);
+  --shadow-xl: 0 24px 48px -8px rgba(0,0,0,0.6), 0 8px 16px -6px rgba(0,0,0,0.3);
+
+  /* Navbar */
+  --nav-bg: rgba(11,15,25,0.82);
+  --nav-border: rgba(255,255,255,0.06);
+
+  /* Footer */
+  --footer-bg: #070A12;
+  --footer-text: #6B7280;
+  --footer-heading: #E5E7EB;
+  --footer-border: #1A1F2E;
+}
+
+/* ===== Tailwind v4 theme bridge ===== */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -54,6 +91,7 @@
   --color-secondary: var(--brand-secondary);
   --color-accent: var(--brand-accent);
   --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
   --color-surface-hover: var(--surface-hover);
   --color-muted: var(--muted);
   --color-border: var(--border);
@@ -61,7 +99,7 @@
   --font-mono: var(--font-geist-mono);
 }
 
-/* Global Resets & Base */
+/* ===== Global Resets ===== */
 * {
   scroll-behavior: smooth;
 }
@@ -72,9 +110,10 @@ body {
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Animations */
+/* ===== Animations ===== */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -88,6 +127,11 @@ body {
 @keyframes pulse-soft {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.7; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
 .animate-fade-in {
@@ -109,18 +153,40 @@ body {
 .animate-stagger > *:nth-child(5) { animation-delay: 0.5s; }
 .animate-stagger > *:nth-child(6) { animation-delay: 0.6s; }
 
-/* Gradient backgrounds */
+/* ===== Gradient backgrounds ===== */
 .bg-brand-gradient {
   background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-light) 100%);
+}
+
+.text-brand-gradient {
+  background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
 }
 
 .bg-hero-gradient {
   background: linear-gradient(160deg, #6C3CE1 0%, #4F46E5 40%, #14B8A6 100%);
 }
 
-/* Glass effect */
+/* ===== Glass effect ===== */
 .glass {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* ===== Card utility ===== */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+}
+.card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--brand-primary);
+  transform: translateY(-2px);
 }

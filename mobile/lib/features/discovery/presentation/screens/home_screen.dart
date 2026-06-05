@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/providers/theme_provider.dart';
 import '../../../../core/utils/loading/skeleton_loader.dart';
 import '../../../../core/utils/errors/error_view.dart';
 import '../providers/discovery_providers.dart';
@@ -13,19 +14,27 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final collegesAsync = ref.watch(popularCollegesProvider);
     final featuredAsync = ref.watch(featuredAccommodationsProvider);
     final authState = ref.watch(authControllerProvider);
-    
+
     String userName = 'Student';
     if (authState is AuthAuthenticated && authState.user.name != null) {
       userName = authState.user.name!;
     }
 
+    final bgColor = isDark ? AppTheme.backgroundDark : AppTheme.background;
+    final cardColor = isDark ? AppTheme.surfaceDark : AppTheme.surface;
+    final borderColor = isDark ? AppTheme.borderDark : AppTheme.border;
+    final textColor = isDark ? AppTheme.foregroundDark : AppTheme.foreground;
+    final mutedColor = isDark ? AppTheme.mutedDark : AppTheme.muted;
+    final surfaceAlt = isDark ? AppTheme.surfaceAltDark : AppTheme.surfaceAlt;
+
     Future<void> onRefresh() async {
       ref.invalidate(popularCollegesProvider);
       ref.invalidate(featuredAccommodationsProvider);
-      // Wait for the new futures to complete
       await Future.wait([
         ref.read(popularCollegesProvider.future),
         ref.read(featuredAccommodationsProvider.future),
@@ -33,45 +42,85 @@ class HomeScreen extends ConsumerWidget {
     }
 
     return Scaffold(
+      backgroundColor: bgColor,
       body: RefreshIndicator(
+        color: AppTheme.brandPrimary,
         onRefresh: onRefresh,
         child: CustomScrollView(
           slivers: [
-            // App Bar / Header
+            // ─── Premium Header ──────────────────────────────────
             SliverAppBar(
               floating: true,
-              backgroundColor: AppTheme.brandPrimary,
-              foregroundColor: Colors.white,
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              snap: true,
+              backgroundColor: cardColor,
+              surfaceTintColor: Colors.transparent,
+              elevation: 0,
+              toolbarHeight: 72,
+              title: Row(
                 children: [
-                  Text('Hi, $userName 👋', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const Text('Find your perfect stay', style: TextStyle(fontSize: 12, color: Colors.white70)),
+                  // Logo matching web
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [AppTheme.brandPrimary, AppTheme.brandPrimaryLight],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Center(
+                      child: Text('M', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 18)),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Hi, $userName 👋',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: textColor, letterSpacing: -0.3),
+                      ),
+                      Text(
+                        'Find your perfect stay',
+                        style: TextStyle(fontSize: 12, color: mutedColor, fontWeight: FontWeight.w400),
+                      ),
+                    ],
+                  ),
                 ],
               ),
               actions: [
                 IconButton(
-                  icon: const Icon(Icons.logout),
+                  icon: Icon(isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded, size: 20, color: mutedColor),
+                  onPressed: () => ref.read(themeProvider.notifier).toggleTheme(),
+                ),
+                IconButton(
+                  icon: Icon(Icons.logout_rounded, size: 20, color: mutedColor),
                   onPressed: () => ref.read(authControllerProvider.notifier).logout(),
-                )
+                ),
+                const SizedBox(width: 4),
               ],
               bottom: PreferredSize(
-                preferredSize: const Size.fromHeight(70),
+                preferredSize: const Size.fromHeight(62),
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                   child: InkWell(
                     onTap: () => context.push('/search'),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
+                        color: surfaceAlt,
+                        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                        border: Border.all(color: borderColor),
                       ),
                       child: Row(
-                        children: const [
-                          Icon(Icons.search, color: AppTheme.textSecondary),
-                          SizedBox(width: 8),
-                          Text('Search by college, location...', style: TextStyle(color: AppTheme.textSecondary)),
+                        children: [
+                          Icon(Icons.search_rounded, color: mutedColor, size: 20),
+                          const SizedBox(width: 10),
+                          Text('Search by college, location...', style: TextStyle(color: mutedColor, fontSize: 14)),
                         ],
                       ),
                     ),
@@ -80,17 +129,17 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
 
-            // Popular Colleges
+            // ─── Popular Colleges ────────────────────────────────
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 14),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Popular Colleges', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    TextButton(
-                      onPressed: () => context.push('/colleges'),
-                      child: const Text('See All'),
+                    Text('Popular Colleges', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: textColor, letterSpacing: -0.3)),
+                    GestureDetector(
+                      onTap: () => context.push('/colleges'),
+                      child: Text('See All', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.brandPrimary)),
                     ),
                   ],
                 ),
@@ -98,7 +147,7 @@ class HomeScreen extends ConsumerWidget {
             ),
             SliverToBoxAdapter(
               child: SizedBox(
-                height: 120,
+                height: 110,
                 child: collegesAsync.when(
                   data: (colleges) => ListView.builder(
                     scrollDirection: Axis.horizontal,
@@ -109,33 +158,36 @@ class HomeScreen extends ConsumerWidget {
                       return GestureDetector(
                         onTap: () => context.push('/colleges/${college.slug}'),
                         child: Container(
-                          width: 100,
+                          width: 96,
                           margin: const EdgeInsets.symmetric(horizontal: 4),
                           decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppTheme.border),
+                            color: cardColor,
+                            borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+                            border: Border.all(color: borderColor),
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Container(
-                                width: 50,
-                                height: 50,
+                                width: 44,
+                                height: 44,
                                 decoration: BoxDecoration(
-                                  color: AppTheme.brandPrimary.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(12),
+                                  gradient: LinearGradient(
+                                    colors: [AppTheme.brandPrimary.withOpacity(0.1), AppTheme.brandPrimaryLight.withOpacity(0.05)],
+                                  ),
+                                  borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                                 ),
-                                child: const Icon(Icons.school, color: AppTheme.brandPrimary),
+                                child: const Icon(Icons.school_rounded, color: AppTheme.brandPrimary, size: 22),
                               ),
                               const SizedBox(height: 8),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 4),
+                                padding: const EdgeInsets.symmetric(horizontal: 6),
                                 child: Text(
                                   college.name,
                                   maxLines: 2,
                                   textAlign: TextAlign.center,
-                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: textColor),
                                 ),
                               ),
                             ],
@@ -150,19 +202,19 @@ class HomeScreen extends ConsumerWidget {
                     itemCount: 4,
                     itemBuilder: (context, index) => const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 4),
-                      child: SkeletonLoader(width: 100, height: 120, borderRadius: 12),
+                      child: SkeletonLoader(width: 96, height: 110, borderRadius: 16),
                     ),
                   ),
-                  error: (err, stack) => Center(child: Text('Failed to load colleges', style: TextStyle(color: Colors.red))),
+                  error: (err, stack) => Center(child: Text('Failed to load', style: TextStyle(color: AppTheme.danger))),
                 ),
               ),
             ),
 
-            // Featured Accommodations
-            const SliverToBoxAdapter(
+            // ─── Featured Accommodations ─────────────────────────
+            SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(16, 24, 16, 12),
-                child: Text('Featured Accommodations', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                padding: const EdgeInsets.fromLTRB(16, 28, 16, 14),
+                child: Text('Featured Accommodations', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: textColor, letterSpacing: -0.3)),
               ),
             ),
             featuredAsync.when(
@@ -172,66 +224,101 @@ class HomeScreen extends ConsumerWidget {
                     final acc = accommodations[index];
                     return GestureDetector(
                       onTap: () => context.push('/accommodations/${acc.slug}'),
-                      child: Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: cardColor,
+                          borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+                          border: Border.all(color: borderColor),
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // Image placeholder
                             Container(
-                              height: 180,
+                              height: 160,
                               decoration: BoxDecoration(
-                                color: Colors.grey[200],
-                                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                                gradient: LinearGradient(
+                                  colors: [
+                                    AppTheme.brandPrimary.withOpacity(isDark ? 0.15 : 0.06),
+                                    AppTheme.brandSecondary.withOpacity(isDark ? 0.1 : 0.04),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTheme.radiusXl)),
                               ),
-                              // In prod, use CachedNetworkImage
-                              child: const Center(child: Icon(Icons.image, color: Colors.grey, size: 40)),
+                              child: Center(
+                                child: Icon(Icons.apartment_rounded, color: AppTheme.brandPrimary.withOpacity(0.3), size: 48),
+                              ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.all(16.0),
+                              padding: const EdgeInsets.all(16),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Expanded(
                                         child: Text(
                                           acc.name,
-                                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: textColor, letterSpacing: -0.3),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
                                       if (acc.verificationStatus != 'unverified')
-                                        const Icon(Icons.verified, color: AppTheme.success, size: 20),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: AppTheme.success.withOpacity(0.1),
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Icon(Icons.verified_rounded, color: AppTheme.success, size: 14),
+                                              const SizedBox(width: 3),
+                                              Text('Verified', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppTheme.success)),
+                                            ],
+                                          ),
+                                        ),
                                     ],
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(acc.address, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
-                                  const SizedBox(height: 12),
+                                  const SizedBox(height: 6),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.location_on_outlined, size: 14, color: mutedColor),
+                                      const SizedBox(width: 4),
+                                      Expanded(
+                                        child: Text(acc.address, style: TextStyle(color: mutedColor, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 14),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         '₹${acc.startingPrice.toInt()}/month',
-                                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.brandPrimary),
+                                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.brandPrimary, letterSpacing: -0.5),
                                       ),
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                         decoration: BoxDecoration(
-                                          color: AppTheme.brandPrimary.withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(20),
+                                          color: AppTheme.brandPrimary.withOpacity(0.08),
+                                          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                                         ),
                                         child: Text(
                                           acc.type.toUpperCase(),
-                                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.brandPrimary),
+                                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppTheme.brandPrimary, letterSpacing: 0.5),
                                         ),
-                                      )
+                                      ),
                                     ],
-                                  )
+                                  ),
                                 ],
                               ),
-                            )
+                            ),
                           ],
                         ),
                       ),
@@ -243,7 +330,7 @@ class HomeScreen extends ConsumerWidget {
               loading: () => SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) => const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                     child: CardSkeleton(),
                   ),
                   childCount: 3,

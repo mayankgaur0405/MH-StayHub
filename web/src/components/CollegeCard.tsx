@@ -10,7 +10,7 @@ export default function CollegeCard({ college }: CollegeCardProps) {
   return (
     <Link
       href={`/colleges/${college.slug}`}
-      className="group flex items-center gap-4 bg-white rounded-xl p-4 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 border border-border"
+      className="group card flex items-center gap-4 rounded-xl p-4"
     >
       {/* Logo */}
       <div className="relative w-14 h-14 rounded-xl bg-brand/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
@@ -25,16 +25,16 @@ export default function CollegeCard({ college }: CollegeCardProps) {
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <h3 className="text-sm font-semibold text-foreground group-hover:text-brand transition-colors line-clamp-1">
+        <h3 className="text-sm font-semibold group-hover:text-brand transition-colors line-clamp-1" style={{ color: 'var(--foreground)' }}>
           {college.name}
         </h3>
-        <p className="text-xs text-muted mt-0.5">
+        <p className="text-xs mt-0.5" style={{ color: 'var(--muted)' }}>
           📍 {college.city}, {college.state}
         </p>
       </div>
 
       {/* Arrow */}
-      <svg className="w-5 h-5 text-muted group-hover:text-brand transition-colors flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg className="w-5 h-5 group-hover:text-brand transition-colors flex-shrink-0" style={{ color: 'var(--muted)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
       </svg>
     </Link>

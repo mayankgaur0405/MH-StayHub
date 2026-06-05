@@ -13,35 +13,65 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  final List<Map<String, String>> _onboardingData = [
+  final List<Map<String, dynamic>> _onboardingData = [
     {
       'title': 'Find Verified Stays',
-      'description': 'Discover hostels and PGs personally verified by our team. Zero surprises.',
-      'icon': '🏠', // Replace with an SVG or proper image asset in prod
+      'description': 'Discover hostels and PGs personally verified by our team. Zero surprises, guaranteed.',
+      'icon': Icons.verified_user_rounded,
+      'color': AppTheme.brandPrimary,
     },
     {
       'title': 'Near Your College',
-      'description': 'Search for accommodations specifically mapped to your college in Greater Noida.',
-      'icon': '🏫',
+      'description': 'Search accommodations specifically mapped to your college in Greater Noida.',
+      'icon': Icons.school_rounded,
+      'color': AppTheme.brandSecondary,
     },
     {
       'title': 'Zero Brokerage',
-      'description': 'Connect directly with property owners and pay zero brokerage fees.',
-      'icon': '💰',
+      'description': 'Connect directly with property owners. No middlemen, no brokerage fees.',
+      'icon': Icons.savings_rounded,
+      'color': AppTheme.brandAccent,
     },
   ];
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textColor = isDark ? AppTheme.foregroundDark : AppTheme.foreground;
+    final mutedColor = isDark ? AppTheme.mutedDark : AppTheme.muted;
+
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
-            Align(
-              alignment: Alignment.topRight,
-              child: TextButton(
-                onPressed: () => context.go('/login'),
-                child: const Text('Skip', style: TextStyle(color: AppTheme.textSecondary)),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Logo
+                  Row(
+                    children: [
+                      Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(colors: [AppTheme.brandPrimary, AppTheme.brandPrimaryLight]),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Center(child: Text('M', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16))),
+                      ),
+                      const SizedBox(width: 8),
+                      Text('MH ', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: textColor)),
+                      const Text('StayHub', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppTheme.brandPrimary)),
+                    ],
+                  ),
+                  TextButton(
+                    onPressed: () => context.go('/login'),
+                    child: Text('Skip', style: TextStyle(color: mutedColor, fontWeight: FontWeight.w600)),
+                  ),
+                ],
               ),
             ),
             Expanded(
@@ -50,32 +80,32 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 onPageChanged: (index) => setState(() => _currentPage = index),
                 itemCount: _onboardingData.length,
                 itemBuilder: (context, index) {
+                  final data = _onboardingData[index];
                   return Padding(
-                    padding: const EdgeInsets.all(40.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          _onboardingData[index]['icon']!,
-                          style: const TextStyle(fontSize: 100),
+                        Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            color: (data['color'] as Color).withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(data['icon'] as IconData, size: 56, color: data['color'] as Color),
                         ),
                         const SizedBox(height: 48),
                         Text(
-                          _onboardingData[index]['title']!,
+                          data['title'] as String,
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.textPrimary,
-                          ),
+                          style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: textColor, letterSpacing: -0.5),
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          _onboardingData[index]['description']!,
+                          data['description'] as String,
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: AppTheme.textSecondary,
-                            height: 1.5,
-                          ),
+                          style: TextStyle(fontSize: 16, color: mutedColor, height: 1.6),
                         ),
                       ],
                     ),
@@ -84,40 +114,50 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+              child: Column(
                 children: [
+                  // Page indicator
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(
                       _onboardingData.length,
-                      (index) => Container(
-                        margin: const EdgeInsets.only(right: 8),
-                        height: 8,
-                        width: _currentPage == index ? 24 : 8,
+                      (index) => AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        height: 6,
+                        width: _currentPage == index ? 28 : 6,
                         decoration: BoxDecoration(
-                          color: _currentPage == index ? AppTheme.brandPrimary : AppTheme.border,
-                          borderRadius: BorderRadius.circular(4),
+                          color: _currentPage == index ? AppTheme.brandPrimary : (isDark ? AppTheme.borderDark : AppTheme.border),
+                          borderRadius: BorderRadius.circular(3),
                         ),
                       ),
                     ),
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (_currentPage == _onboardingData.length - 1) {
-                        context.go('/login');
-                      } else {
-                        _pageController.nextPage(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeIn,
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  const SizedBox(height: 32),
+                  // CTA Button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 54,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (_currentPage == _onboardingData.length - 1) {
+                          context.go('/login');
+                        } else {
+                          _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.brandPrimary,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusLg)),
+                      ),
+                      child: Text(
+                        _currentPage == _onboardingData.length - 1 ? 'Get Started' : 'Continue',
+                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                      ),
                     ),
-                    child: Text(_currentPage == _onboardingData.length - 1 ? 'Get Started' : 'Next'),
                   ),
                 ],
               ),

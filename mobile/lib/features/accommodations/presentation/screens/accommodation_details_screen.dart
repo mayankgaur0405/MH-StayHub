@@ -21,41 +21,50 @@ class AccommodationDetailsScreen extends ConsumerStatefulWidget {
 
 class _AccommodationDetailsScreenState extends ConsumerState<AccommodationDetailsScreen> {
   @override
-  void initState() {
-    super.initState();
-    // Pre-fetch/Analytics could be triggered here if needed
-  }
-
-  @override
   Widget build(BuildContext context) {
     final detailsAsync = ref.watch(accommodationDetailsProvider(widget.slug));
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
+    final bgColor = isDark ? AppTheme.backgroundDark : AppTheme.background;
+    final surfaceColor = isDark ? AppTheme.surfaceDark : AppTheme.surface;
+    final surfaceAlt = isDark ? AppTheme.surfaceAltDark : AppTheme.surfaceAlt;
+    final borderColor = isDark ? AppTheme.borderDark : AppTheme.border;
+    final textColor = isDark ? AppTheme.foregroundDark : AppTheme.foreground;
+    final mutedColor = isDark ? AppTheme.mutedDark : AppTheme.muted;
 
     return Scaffold(
+      backgroundColor: bgColor,
       body: detailsAsync.when(
         data: (acc) {
           return CustomScrollView(
             slivers: [
-              // Image Carousel App Bar
+              // ─── Image Carousel App Bar ──────────────────────────────
               SliverAppBar(
                 expandedHeight: 280,
                 pinned: true,
+                backgroundColor: surfaceColor,
+                iconTheme: const IconThemeData(color: Colors.white),
                 actions: [
                   IconButton(
-                    icon: const Icon(Icons.share),
-                    onPressed: () {
-                      ShareUtils.nativeShare(acc.slug, acc.name, acc.id);
-                    },
+                    icon: const Icon(Icons.share_rounded, color: Colors.white),
+                    onPressed: () => ShareUtils.nativeShare(acc.slug, acc.name, acc.id),
                   ),
                   Consumer(
                     builder: (context, ref, _) {
                       return IconButton(
-                        icon: const Icon(Icons.favorite_border),
+                        icon: const Icon(Icons.favorite_border_rounded, color: Colors.white),
                         onPressed: () {
-                          // This interacts with SavedAccommodationProvider
-                          // Using a Consumer to get ref locally
                           ref.read(savedAccommodationsProvider.notifier).save(acc.id);
                           AnalyticsTracker.trackSaveProperty(acc.id, true);
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Saved to favorites!')));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text('Saved to favorites!'),
+                              backgroundColor: AppTheme.success,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusMd)),
+                            )
+                          );
                         },
                       );
                     }
@@ -74,21 +83,27 @@ class _AccommodationDetailsScreenState extends ConsumerState<AccommodationDetail
                               return CachedNetworkImage(
                                 imageUrl: acc.images[index],
                                 fit: BoxFit.cover,
-                                placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                                errorWidget: (context, url, error) => const Icon(Icons.error),
+                                placeholder: (context, url) => Container(
+                                  color: surfaceAlt,
+                                  child: const Center(child: CircularProgressIndicator()),
+                                ),
+                                errorWidget: (context, url, error) => Container(
+                                  color: surfaceAlt,
+                                  child: const Icon(Icons.error_outline_rounded, color: AppTheme.danger),
+                                ),
                               );
                             },
                           ),
                         )
                       else
-                        Container(color: Colors.grey[200], child: const Icon(Icons.image, size: 64, color: Colors.grey)),
+                        Container(
+                          color: surfaceAlt,
+                          child: Icon(Icons.apartment_rounded, size: 64, color: mutedColor.withOpacity(0.5)),
+                        ),
                       
                       // Gradient overlay for back button visibility
                       Positioned(
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        height: 100,
+                        top: 0, left: 0, right: 0, height: 100,
                         child: Container(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
@@ -103,17 +118,23 @@ class _AccommodationDetailsScreenState extends ConsumerState<AccommodationDetail
                       // Photos count badge
                       if (acc.images.length > 1)
                         Positioned(
-                          bottom: 16,
-                          right: 16,
+                          bottom: 16, right: 16,
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
                               color: Colors.black.withOpacity(0.6),
                               borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: Colors.white.withOpacity(0.2)),
                             ),
-                            child: Text(
-                              '1 / ${acc.images.length} Photos',
-                              style: const TextStyle(color: Colors.white, fontSize: 12),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.photo_library_rounded, color: Colors.white, size: 14),
+                                const SizedBox(width: 6),
+                                Text(
+                                  '1 / ${acc.images.length}',
+                                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -122,7 +143,7 @@ class _AccommodationDetailsScreenState extends ConsumerState<AccommodationDetail
                 ),
               ),
 
-              // Content
+              // ─── Content ─────────────────────────────────────────────
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
@@ -136,57 +157,73 @@ class _AccommodationDetailsScreenState extends ConsumerState<AccommodationDetail
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
                               color: AppTheme.brandPrimary.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                             ),
-                            child: Text(acc.type.toUpperCase(), style: const TextStyle(color: AppTheme.brandPrimary, fontSize: 12, fontWeight: FontWeight.bold)),
+                            child: Text(
+                              acc.type.toUpperCase(),
+                              style: const TextStyle(color: AppTheme.brandPrimary, fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 0.5),
+                            ),
                           ),
                           const SizedBox(width: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(8),
+                              color: surfaceAlt,
+                              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                             ),
-                            child: Text(acc.gender.toUpperCase(), style: const TextStyle(color: AppTheme.textPrimary, fontSize: 12, fontWeight: FontWeight.bold)),
+                            child: Text(
+                              acc.gender.toUpperCase(),
+                              style: TextStyle(color: textColor, fontSize: 12, fontWeight: FontWeight.w600),
+                            ),
                           ),
                           const Spacer(),
                           if (acc.verificationStatus != 'unverified')
-                            Row(
-                              children: [
-                                const Icon(Icons.verified, color: AppTheme.success, size: 16),
-                                const SizedBox(width: 4),
-                                Text(
-                                  acc.verificationStatus == 'premium_verified' ? 'Premium' : 'Verified',
-                                  style: const TextStyle(color: AppTheme.success, fontSize: 12, fontWeight: FontWeight.bold),
-                                ),
-                              ],
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: AppTheme.success.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.verified_rounded, color: AppTheme.success, size: 14),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    acc.verificationStatus == 'premium_verified' ? 'Premium' : 'Verified',
+                                    style: const TextStyle(color: AppTheme.success, fontSize: 11, fontWeight: FontWeight.w700),
+                                  ),
+                                ],
+                              ),
                             ),
                         ],
                       ),
                       const SizedBox(height: 16),
                       
                       // Title
-                      Text(acc.name, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+                      Text(
+                        acc.name,
+                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: textColor, letterSpacing: -0.5),
+                      ),
                       const SizedBox(height: 8),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(Icons.location_on, color: AppTheme.textSecondary, size: 18),
+                          Icon(Icons.location_on_rounded, color: mutedColor, size: 18),
                           const SizedBox(width: 4),
-                          Expanded(child: Text(acc.address, style: const TextStyle(color: AppTheme.textSecondary))),
+                          Expanded(child: Text(acc.address, style: TextStyle(color: mutedColor, fontSize: 14))),
                         ],
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 28),
 
-                      // Pricing Card
+                      // ─── Pricing Card ────────────────────────────────
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppTheme.border),
+                          color: surfaceColor,
+                          borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+                          border: Border.all(color: borderColor),
                           boxShadow: [
-                            BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, spreadRadius: 0)
+                            BoxShadow(color: isDark ? Colors.black.withOpacity(0.3) : Colors.black.withOpacity(0.04), blurRadius: 16, offset: const Offset(0, 4)),
                           ]
                         ),
                         child: Row(
@@ -195,18 +232,22 @@ class _AccommodationDetailsScreenState extends ConsumerState<AccommodationDetail
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Starts from', style: TextStyle(color: AppTheme.textSecondary)),
-                                const SizedBox(height: 4),
+                                Text('Starting from', style: TextStyle(color: mutedColor, fontSize: 13)),
+                                const SizedBox(height: 2),
                                 Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                                  textBaseline: TextBaseline.alphabetic,
                                   children: [
-                                    Text('₹${acc.startingPrice.toInt()}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.brandPrimary)),
-                                    const Text('/month', style: TextStyle(color: AppTheme.textSecondary)),
+                                    Text(
+                                      '₹${acc.startingPrice.toInt()}',
+                                      style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: AppTheme.brandPrimary, letterSpacing: -0.5),
+                                    ),
+                                    Text('/month', style: TextStyle(color: mutedColor, fontSize: 14, fontWeight: FontWeight.w500)),
                                   ],
                                 ),
                                 if (acc.deposit != null) ...[
                                   const SizedBox(height: 4),
-                                  Text('Deposit: ₹${acc.deposit?.toInt()}', style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
+                                  Text('Security Deposit: ₹${acc.deposit?.toInt()}', style: TextStyle(fontSize: 12, color: mutedColor)),
                                 ]
                               ],
                             ),
@@ -215,30 +256,38 @@ class _AccommodationDetailsScreenState extends ConsumerState<AccommodationDetail
                       ),
                       const SizedBox(height: 32),
 
-                      // Amenities
-                      const Text('Amenities', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      // ─── Amenities ───────────────────────────────────
+                      Text('Amenities', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textColor)),
                       const SizedBox(height: 16),
                       Wrap(
-                        spacing: 12,
-                        runSpacing: 12,
+                        spacing: 10,
+                        runSpacing: 10,
                         children: acc.amenities.map((amenity) {
                           return Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                             decoration: BoxDecoration(
-                              color: Colors.grey[100],
-                              borderRadius: BorderRadius.circular(12),
+                              color: surfaceAlt,
+                              borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                              border: Border.all(color: borderColor),
                             ),
-                            child: Text(amenity, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.check_circle_rounded, size: 16, color: AppTheme.brandPrimary),
+                                const SizedBox(width: 8),
+                                Text(amenity, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textColor)),
+                              ],
+                            ),
                           );
                         }).toList(),
                       ),
                       const SizedBox(height: 32),
 
-                      // Description
+                      // ─── Description ─────────────────────────────────
                       if (acc.description != null) ...[
-                        const Text('About this property', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text('About this property', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textColor)),
                         const SizedBox(height: 12),
-                        Text(acc.description!, style: const TextStyle(color: AppTheme.textSecondary, height: 1.5)),
+                        Text(acc.description!, style: TextStyle(color: mutedColor, height: 1.6, fontSize: 14)),
                         const SizedBox(height: 32),
                       ],
 
@@ -257,7 +306,7 @@ class _AccommodationDetailsScreenState extends ConsumerState<AccommodationDetail
         ),
       ),
       
-      // Bottom Owner Actions Bar
+      // ─── Bottom Owner Actions Bar ────────────────────────────────────
       bottomNavigationBar: detailsAsync.whenOrNull(
         data: (acc) {
           final phone = acc.ownerContact?['phone'];
@@ -265,8 +314,11 @@ class _AccommodationDetailsScreenState extends ConsumerState<AccommodationDetail
           return Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5))],
+              color: surfaceColor,
+              border: Border(top: BorderSide(color: borderColor)),
+              boxShadow: [
+                BoxShadow(color: isDark ? Colors.black.withOpacity(0.3) : Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5))
+              ],
             ),
             child: SafeArea(
               child: Column(
@@ -277,13 +329,16 @@ class _AccommodationDetailsScreenState extends ConsumerState<AccommodationDetail
                       Expanded(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.amber,
+                            backgroundColor: AppTheme.brandAccent,
+                            foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusLg)),
                           ),
                           onPressed: () {
                             context.push('/priority-hold', extra: {'id': acc.id, 'name': acc.name});
                           },
-                          child: const Text('Priority Hold', style: TextStyle(fontSize: 15, color: Colors.black87, fontWeight: FontWeight.bold)),
+                          child: const Text('Priority Hold', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -291,12 +346,15 @@ class _AccommodationDetailsScreenState extends ConsumerState<AccommodationDetail
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppTheme.brandPrimary,
+                            foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusLg)),
                           ),
                           onPressed: () {
                             context.push('/schedule-visit', extra: {'id': acc.id, 'name': acc.name});
                           },
-                          child: const Text('Schedule Visit', style: TextStyle(fontSize: 15)),
+                          child: const Text('Schedule Visit', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
                         ),
                       ),
                     ],
@@ -306,17 +364,28 @@ class _AccommodationDetailsScreenState extends ConsumerState<AccommodationDetail
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          icon: const Icon(Icons.phone),
-                          label: const Text('Call Owner'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppTheme.brandPrimary,
+                            side: BorderSide(color: borderColor),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusLg)),
+                          ),
+                          icon: const Icon(Icons.phone_rounded, size: 18),
+                          label: const Text('Call', style: TextStyle(fontWeight: FontWeight.w600)),
                           onPressed: phone != null ? () => ShareUtils.callOwner(phone, acc.id) : null,
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(foregroundColor: Colors.green),
-                          icon: const Icon(Icons.chat),
-                          label: const Text('WhatsApp'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppTheme.success,
+                            side: BorderSide(color: borderColor),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusLg)),
+                          ),
+                          icon: const Icon(Icons.chat_bubble_rounded, size: 18),
+                          label: const Text('WhatsApp', style: TextStyle(fontWeight: FontWeight.w600)),
                           onPressed: phone != null ? () => ShareUtils.whatsappOwner(phone, name, acc.id) : null,
                         ),
                       ),

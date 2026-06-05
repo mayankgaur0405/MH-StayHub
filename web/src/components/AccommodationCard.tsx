@@ -13,10 +13,10 @@ export default function AccommodationCard({ accommodation }: AccommodationCardPr
   return (
     <Link
       href={`/accommodations/${accommodation.slug}`}
-      className="group block bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+      className="group block card rounded-xl overflow-hidden"
     >
       {/* Image */}
-      <div className="relative h-48 sm:h-52 overflow-hidden bg-gray-100">
+      <div className="relative h-48 sm:h-52 overflow-hidden" style={{ background: 'var(--surface-alt)' }}>
         {accommodation.images.length > 0 ? (
           <Image
             src={accommodation.images[0]}
@@ -26,24 +26,24 @@ export default function AccommodationCard({ accommodation }: AccommodationCardPr
             className="object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+          <div className="w-full h-full flex items-center justify-center text-sm" style={{ color: 'var(--muted)' }}>
             No Image
           </div>
         )}
 
         {/* Badges */}
         <div className="absolute top-3 left-3 flex gap-2">
-          <span className="px-2.5 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-semibold text-brand">
+          <span className="px-2.5 py-1 backdrop-blur-sm rounded-full text-xs font-semibold text-brand" style={{ background: 'rgba(255,255,255,0.9)' }}>
             {ACCOMMODATION_TYPE_LABELS[accommodation.type]}
           </span>
-          <span className="px-2.5 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium text-gray-700">
+          <span className="px-2.5 py-1 backdrop-blur-sm rounded-full text-xs font-medium" style={{ background: 'rgba(255,255,255,0.9)', color: 'var(--foreground)' }}>
             {GENDER_LABELS[accommodation.gender]}
           </span>
         </div>
 
         {badge.label && (
           <div className="absolute top-3 right-3">
-            <span className={`px-2.5 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-semibold ${badge.color}`}>
+            <span className={`px-2.5 py-1 backdrop-blur-sm rounded-full text-xs font-semibold ${badge.color}`} style={{ background: 'rgba(255,255,255,0.9)' }}>
               ✓ {badge.label}
             </span>
           </div>
@@ -52,22 +52,22 @@ export default function AccommodationCard({ accommodation }: AccommodationCardPr
 
       {/* Content */}
       <div className="p-4">
-        <h3 className="text-base font-semibold text-foreground group-hover:text-brand transition-colors line-clamp-1">
+        <h3 className="text-base font-semibold group-hover:text-brand transition-colors line-clamp-1" style={{ color: 'var(--foreground)' }}>
           {accommodation.name}
         </h3>
-        <p className="text-sm text-muted mt-1 line-clamp-1">
+        <p className="text-sm mt-1 line-clamp-1" style={{ color: 'var(--muted)' }}>
           📍 {accommodation.address}
         </p>
 
         {/* Amenities */}
         <div className="flex flex-wrap gap-1.5 mt-3">
           {accommodation.amenities.slice(0, 4).map((amenity) => (
-            <span key={amenity} className="text-xs bg-gray-50 text-gray-600 px-2 py-1 rounded-md">
+            <span key={amenity} className="text-xs px-2 py-1 rounded-md" style={{ background: 'var(--surface-alt)', color: 'var(--muted)' }}>
               {AMENITY_ICONS[amenity] || '•'} {amenity}
             </span>
           ))}
           {accommodation.amenities.length > 4 && (
-            <span className="text-xs text-muted px-2 py-1">
+            <span className="text-xs px-2 py-1" style={{ color: 'var(--muted)' }}>
               +{accommodation.amenities.length - 4} more
             </span>
           )}
@@ -79,7 +79,7 @@ export default function AccommodationCard({ accommodation }: AccommodationCardPr
             <span className="text-lg font-bold text-brand">
               ₹{accommodation.pricing.startingPrice.toLocaleString('en-IN')}
             </span>
-            <span className="text-xs text-muted">/month</span>
+            <span className="text-xs" style={{ color: 'var(--muted)' }}>/month</span>
           </div>
           <span className="text-xs font-medium text-brand bg-brand/5 px-3 py-1.5 rounded-full group-hover:bg-brand group-hover:text-white transition-colors">
             View Details →

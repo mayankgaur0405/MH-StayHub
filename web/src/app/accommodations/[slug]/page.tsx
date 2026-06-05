@@ -118,7 +118,7 @@ export default async function AccommodationDetailPage({ params }: Props) {
               {acc.amenities.map((amenity) => (
                 <div
                   key={amenity}
-                  className="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3 border border-border"
+                  className="flex items-center gap-3 bg-surface-alt rounded-xl px-4 py-3 border border-border"
                 >
                   <span className="text-xl">{AMENITY_ICONS[amenity] || '•'}</span>
                   <span className="text-sm font-medium text-foreground">{amenity}</span>
@@ -135,7 +135,7 @@ export default async function AccommodationDetailPage({ params }: Props) {
                 {acc.nearbyColleges.map((nc, i) => {
                   const college = nc.collegeId as College;
                   return (
-                    <div key={i} className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3 border border-border">
+                    <div key={i} className="flex items-center justify-between bg-surface-alt rounded-xl px-4 py-3 border border-border">
                       <div className="flex items-center gap-3">
                         <span className="text-xl">🏫</span>
                         <div>
@@ -158,7 +158,7 @@ export default async function AccommodationDetailPage({ params }: Props) {
         <div className="lg:col-span-1">
           <div className="sticky top-24 space-y-6">
             {/* Pricing Card */}
-            <div className="bg-white rounded-2xl border border-border shadow-lg p-6">
+            <div className="bg-surface rounded-2xl border border-border shadow-lg p-6">
               <div className="mb-6">
                 <span className="text-sm text-muted">Starting from</span>
                 <div className="mt-1">

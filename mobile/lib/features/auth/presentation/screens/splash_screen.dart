@@ -12,21 +12,36 @@ class SplashScreen extends ConsumerStatefulWidget {
   ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends ConsumerState<SplashScreen> {
+class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<double> _scaleAnimation;
+
   @override
   void initState() {
     super.initState();
-    // Delay routing logic to let the splash animation run briefly
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
+    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
+    _controller.forward();
+
     Future.delayed(const Duration(seconds: 2), () {
       _navigateBasedOnAuth();
     });
   }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   void _navigateBasedOnAuth() {
+    if (!mounted) return;
     final authState = ref.read(authControllerProvider);
-    
+
     if (authState is AuthAuthenticated) {
-      context.go('/home'); // Home Dashboard
+      context.go('/home');
     } else if (authState is AuthUnauthenticated || authState is AuthError) {
       context.go('/onboarding');
     }
@@ -34,7 +49,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Listen for state changes if it takes longer than the delay
     ref.listen<AuthState>(authControllerProvider, (previous, next) {
       if (next is AuthAuthenticated) {
         context.go('/home');
@@ -47,55 +61,54 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [AppTheme.brandPrimary, AppTheme.brandPrimaryLight],
+            colors: [Color(0xFF6C3CE1), Color(0xFF4F46E5), Color(0xFF14B8A6)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
         ),
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: const [
-                    BoxShadow(color: Colors.black12, blurRadius: 20, spreadRadius: 5),
-                  ],
-                ),
-                child: const Center(
-                  child: Text(
-                    'M',
-                    style: TextStyle(
-                      fontSize: 48,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.brandPrimary,
-                    ),
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              return Opacity(
+                opacity: _fadeAnimation.value,
+                child: Transform.scale(
+                  scale: _scaleAnimation.value,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 88,
+                        height: 88,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(22),
+                          boxShadow: [
+                            BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 30, spreadRadius: 2),
+                          ],
+                        ),
+                        child: const Center(
+                          child: Text(
+                            'M',
+                            style: TextStyle(fontSize: 48, fontWeight: FontWeight.w800, color: AppTheme.brandPrimary, letterSpacing: -2),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 28),
+                      const Text(
+                        'MH StayHub',
+                        style: TextStyle(fontSize: 34, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -1),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Student Accommodation, Simplified.',
+                        style: TextStyle(fontSize: 15, color: Colors.white.withOpacity(0.7), fontWeight: FontWeight.w400),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'MH StayHub',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Student Accommodation, Simplified.',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white70,
-                ),
-              ),
-            ],
+              );
+            },
           ),
         ),
       ),

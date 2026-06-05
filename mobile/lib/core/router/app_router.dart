@@ -22,6 +22,12 @@ import '../../features/payments/presentation/screens/priority_hold_screen.dart';
 import '../../features/payments/presentation/screens/payment_processing_screen.dart';
 import '../../features/payments/presentation/screens/payment_success_screen.dart';
 import '../../features/payments/presentation/screens/payment_failure_screen.dart';
+import '../../features/student_advantage/screens/command_center_screen.dart';
+import '../../features/student_advantage/screens/student_advantage_screen.dart';
+import '../../features/student_advantage/screens/career_hub_screen.dart';
+import '../../features/student_advantage/screens/roommate_finder_screen.dart';
+import '../../features/student_advantage/screens/marketplace_screen.dart';
+import '../../features/student_advantage/screens/senior_connect_screen.dart';
 import '../theme/app_theme.dart';
 
 part 'app_router.g.dart';
@@ -38,10 +44,23 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
 
-  static const _tabs = ['/home', '/search', '/saved', '/profile'];
+  static const _tabs = ['/home', '/search', '/hub', '/saved', '/profile'];
 
   @override
   Widget build(BuildContext context) {
+    // Sync _currentIndex with the current route
+    final location = GoRouterState.of(context).uri.toString();
+    for (int i = 0; i < _tabs.length; i++) {
+      if (location.startsWith(_tabs[i])) {
+        if (_currentIndex != i) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) setState(() => _currentIndex = i);
+          });
+        }
+        break;
+      }
+    }
+
     return Scaffold(
       body: widget.child,
       bottomNavigationBar: NavigationBar(
@@ -53,6 +72,7 @@ class _MainShellState extends State<MainShell> {
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
           NavigationDestination(icon: Icon(Icons.search_outlined), selectedIcon: Icon(Icons.search), label: 'Search'),
+          NavigationDestination(icon: Icon(Icons.grid_view_rounded), selectedIcon: Icon(Icons.grid_view_rounded), label: 'Hub'),
           NavigationDestination(icon: Icon(Icons.favorite_outline), selectedIcon: Icon(Icons.favorite), label: 'Saved'),
           NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Profile'),
         ],
@@ -103,6 +123,10 @@ GoRouter appRouter(AppRouterRef ref) {
             builder: (context, state) => const SearchScreen(),
           ),
           GoRoute(
+            path: '/hub',
+            builder: (context, state) => const CommandCenterScreen(),
+          ),
+          GoRoute(
             path: '/saved',
             builder: (context, state) => const SavedListScreen(),
           ),
@@ -111,6 +135,28 @@ GoRouter appRouter(AppRouterRef ref) {
             builder: (context, state) => const ProfileScreen(),
           ),
         ],
+      ),
+
+      // Student Hub sub-routes (pushed on top, no bottom bar)
+      GoRoute(
+        path: '/advantage',
+        builder: (context, state) => const StudentAdvantageScreen(),
+      ),
+      GoRoute(
+        path: '/career-hub',
+        builder: (context, state) => const CareerHubScreen(),
+      ),
+      GoRoute(
+        path: '/roommates',
+        builder: (context, state) => const RoommateFinderScreen(),
+      ),
+      GoRoute(
+        path: '/marketplace',
+        builder: (context, state) => const MarketplaceScreen(),
+      ),
+      GoRoute(
+        path: '/senior-connect',
+        builder: (context, state) => const SeniorConnectScreen(),
       ),
 
       // Detail routes (pushed on top of shell, no bottom bar)

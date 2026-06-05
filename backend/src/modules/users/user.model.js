@@ -21,6 +21,28 @@ const userSchema = new mongoose.Schema({
     enum: ['student', 'owner', 'admin'],
     default: 'student',
   },
+  collegeEmail: {
+    type: String,
+    trim: true,
+    lowercase: true,
+  },
+  collegeName: {
+    type: String,
+    trim: true,
+  },
+  studentVerificationStatus: {
+    type: String,
+    enum: ['none', 'pending', 'verified', 'rejected'],
+    default: 'none',
+  },
+  membershipTier: {
+    type: String,
+    enum: ['free', 'verified', 'premium'],
+    default: 'free',
+  },
+  studentIdImage: {
+    type: String,
+  },
   savedAccommodations: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Accommodation',

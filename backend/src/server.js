@@ -32,6 +32,14 @@ const collegeRoutes = require('./modules/colleges/college.routes');
 const accommodationRoutes = require('./modules/accommodations/accommodation.routes');
 const leadRoutes = require('./modules/leads/lead.routes');
 const paymentRoutes = require('./modules/payments/payment.routes');
+const studentAdvantageRoutes = require('./modules/studentAdvantage/studentAdvantage.routes');
+const notificationRoutes = require('./modules/notifications/notification.routes');
+const adminRoutes = require('./modules/admin/admin.routes');
+const couponRoutes = require('./modules/studentAdvantage/coupon.routes');
+const eventRoutes = require('./modules/studentAdvantage/event.routes');
+const roommateRoutes = require('./modules/studentAdvantage/roommate.routes');
+const marketplaceRoutes = require('./modules/studentAdvantage/marketplace.routes');
+const seniorConnectRoutes = require('./modules/studentAdvantage/seniorConnect.routes');
 
 // Mount routers
 app.use('/api/v1/auth', authRoutes);
@@ -39,6 +47,14 @@ app.use('/api/v1/colleges', collegeRoutes);
 app.use('/api/v1/accommodations', accommodationRoutes);
 app.use('/api/v1/leads', leadRoutes);
 app.use('/api/v1/payments', paymentRoutes);
+app.use('/api/v1/student-advantage', studentAdvantageRoutes);
+app.use('/api/v1/notifications', notificationRoutes);
+app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/coupons', couponRoutes);
+app.use('/api/v1/events', eventRoutes);
+app.use('/api/v1/roommates', roommateRoutes);
+app.use('/api/v1/marketplace', marketplaceRoutes);
+app.use('/api/v1/senior-connect', seniorConnectRoutes);
 
 // Basic route
 app.get('/', (req, res) => {
