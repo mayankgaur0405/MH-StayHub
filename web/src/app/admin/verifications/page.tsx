@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Search, Filter, Check, X, Eye, ExternalLink } from 'lucide-react';
+import { Search, Filter, Check, X, Eye } from 'lucide-react';
 
 export default function AdminVerificationsPage() {
   const [activeTab, setActiveTab] = useState<'pending' | 'approved' | 'rejected'>('pending');
@@ -60,7 +60,7 @@ export default function AdminVerificationsPage() {
             {['pending', 'approved', 'rejected'].map((tab) => (
               <button
                 key={tab}
-                onClick={() => setActiveTab(tab as any)}
+                onClick={() => setActiveTab(tab as 'pending' | 'approved' | 'rejected')}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-all capitalize whitespace-nowrap ${
                   activeTab === tab 
                     ? 'bg-[var(--surface)] shadow-sm text-[var(--foreground)]' 

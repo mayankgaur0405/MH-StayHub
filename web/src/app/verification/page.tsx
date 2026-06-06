@@ -45,7 +45,7 @@ export default function VerificationPage() {
             </div>
             <h2 className="text-2xl font-bold mb-2">Verification Submitted!</h2>
             <p className="text-[var(--muted)] mb-8 max-w-md mx-auto">
-              Your student ID has been successfully submitted. Our team will review it within 24-48 hours. You'll receive a notification once verified.
+              Your student ID has been successfully submitted. Our team will review it within 24-48 hours. You&apos;ll receive a notification once verified.
             </p>
             <Link 
               href="/student-command-center" 
