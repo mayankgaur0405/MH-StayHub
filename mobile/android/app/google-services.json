@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "413261259939",
+    "project_id": "mh-stayhub",
+    "storage_bucket": "mh-stayhub.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:413261259939:android:78ad461eb8c3032fb64b16",
+        "android_client_info": {
+          "package_name": "com.example.mh_stayhub"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBURQJ_614KhPXl85ULHrKFpoRAYMUXusw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

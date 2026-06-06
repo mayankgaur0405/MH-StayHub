@@ -1,19 +1,38 @@
 import 'package:logger/logger.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 class AnalyticsTracker {
   static final Logger _logger = Logger();
+  
+  static FirebaseAnalytics? get _analytics {
+    try {
+      return FirebaseAnalytics.instance;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static void trackEvent(String name, Map<String, dynamic> parameters) {
+    _logger.i('Analytics Event: $name', error: parameters);
+    _analytics?.logEvent(
+      name: name, 
+      parameters: parameters.map((k, v) => MapEntry(k, v.toString()))
+    );
+  }
 
   static void trackSearchPerformed(Map<String, dynamic> filters) {
     _logger.i('Analytics Event: search_performed', error: filters);
-    // In prod: FirebaseAnalytics.instance.logEvent(...)
+    _analytics?.logEvent(name: 'search_performed', parameters: filters.map((k, v) => MapEntry(k, v.toString())));
   }
 
   static void trackViewCollege(String collegeId, String name) {
     _logger.i('Analytics Event: view_college', error: {'id': collegeId, 'name': name});
+    _analytics?.logEvent(name: 'view_college', parameters: {'id': collegeId, 'name': name});
   }
 
   static void trackViewAccommodation(String accommodationId, String name) {
     _logger.i('Analytics Event: view_accommodation', error: {'id': accommodationId, 'name': name});
+    _analytics?.logEvent(name: 'view_accommodation', parameters: {'id': accommodationId, 'name': name});
   }
 
   static void trackCallOwner(String accommodationId) {
@@ -74,5 +93,6 @@ class AnalyticsTracker {
 
   static void trackPaymentFailed(String errorMsg) {
     _logger.i('Analytics Event: payment_failed', error: {'message': errorMsg});
+    _analytics?.logEvent(name: 'payment_failed', parameters: {'message': errorMsg});
   }
 }

@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { getAccommodationBySlug } from '@/services/api';
 import { AMENITY_ICONS, VERIFICATION_BADGES, GENDER_LABELS, ACCOMMODATION_TYPE_LABELS, SITE_URL } from '@/constants';
 import { ShareBar, OwnerActions } from '@/components/DetailActions';
+import RazorpayCheckoutButton from '@/components/RazorpayCheckoutButton';
 import type { College } from '@/types';
 
 interface Props {
@@ -181,18 +182,17 @@ export default async function AccommodationDetailPage({ params }: Props) {
                 accommodationId={acc._id}
               />
 
-              {/* Schedule Visit CTA */}
+              {/* Priority Hold Payment */}
               <div className="mt-4">
-                <Link
-                  href={`/accommodations/${acc.slug}#visit`}
-                  className="block w-full text-center px-6 py-3 bg-accent text-white font-semibold rounded-xl hover:opacity-90 transition-opacity shadow-md"
-                >
-                  📅 Schedule a Visit
-                </Link>
+                <RazorpayCheckoutButton
+                  accommodationId={acc._id}
+                  accommodationName={acc.name}
+                  amount={99}
+                />
               </div>
 
               <p className="text-xs text-muted text-center mt-4">
-                Free visit. No brokerage.
+                ₹99 refundable priority hold. No brokerage.
               </p>
             </div>
 

@@ -8,6 +8,8 @@ import '../../../../core/utils/errors/error_view.dart';
 import '../providers/discovery_providers.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../auth/presentation/providers/auth_state.dart';
+import '../../../../core/utils/analytics_tracker.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -129,6 +131,35 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
 
+            // ─── Firebase Test Buttons ───────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        AnalyticsTracker.trackEvent('test_button_clicked', {'time': DateTime.now().toIso8601String()});
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Analytics event sent!')));
+                      },
+                      icon: const Icon(Icons.analytics, size: 16),
+                      label: const Text('Test Analytics'),
+                      style: ElevatedButton.styleFrom(backgroundColor: AppTheme.brandPrimary, foregroundColor: Colors.white),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        FirebaseCrashlytics.instance.crash();
+                      },
+                      icon: const Icon(Icons.bug_report, size: 16),
+                      label: const Text('Test Crash'),
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
             // ─── Popular Colleges ────────────────────────────────
             SliverToBoxAdapter(
               child: Padding(
@@ -234,23 +265,72 @@ class HomeScreen extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Image placeholder
-                            Container(
-                              height: 160,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    AppTheme.brandPrimary.withOpacity(isDark ? 0.15 : 0.06),
-                                    AppTheme.brandSecondary.withOpacity(isDark ? 0.1 : 0.04),
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTheme.radiusXl)),
-                              ),
-                              child: Center(
-                                child: Icon(Icons.apartment_rounded, color: AppTheme.brandPrimary.withOpacity(0.3), size: 48),
-                              ),
+                            // Property image
+                            ClipRRect(
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTheme.radiusXl)),
+                              child: acc.images.isNotEmpty
+                                  ? Image.network(
+                                      acc.images.first,
+                                      height: 180,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                      loadingBuilder: (context, child, loadingProgress) {
+                                        if (loadingProgress == null) return child;
+                                        return Container(
+                                          height: 180,
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                AppTheme.brandPrimary.withOpacity(isDark ? 0.15 : 0.06),
+                                                AppTheme.brandSecondary.withOpacity(isDark ? 0.1 : 0.04),
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: AppTheme.brandPrimary.withOpacity(0.5),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Container(
+                                          height: 180,
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                AppTheme.brandPrimary.withOpacity(isDark ? 0.15 : 0.06),
+                                                AppTheme.brandSecondary.withOpacity(isDark ? 0.1 : 0.04),
+                                              ],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Icon(Icons.apartment_rounded, color: AppTheme.brandPrimary.withOpacity(0.3), size: 48),
+                                          ),
+                                        );
+                                      },
+                                    )
+                                  : Container(
+                                      height: 180,
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            AppTheme.brandPrimary.withOpacity(isDark ? 0.15 : 0.06),
+                                            AppTheme.brandSecondary.withOpacity(isDark ? 0.1 : 0.04),
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                      ),
+                                      child: Center(
+                                        child: Icon(Icons.apartment_rounded, color: AppTheme.brandPrimary.withOpacity(0.3), size: 48),
+                                      ),
+                                    ),
                             ),
                             Padding(
                               padding: const EdgeInsets.all(16),

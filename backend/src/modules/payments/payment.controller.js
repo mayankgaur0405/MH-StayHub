@@ -125,6 +125,33 @@ const verifyPayment = async (req, res) => {
       { upsert: true, new: true }
     );
 
+    // 6. Send Email Notifications
+    const { sendEmail } = require('../../utils/email.service');
+    const User = require('../users/user.model');
+    const Accommodation = require('../accommodations/accommodation.model');
+    
+    const user = await User.findById(payment.user);
+    const accommodation = await Accommodation.findById(payment.accommodation);
+
+    if (user && accommodation) {
+      const emailHtml = `
+        <h2>Priority Hold Confirmed!</h2>
+        <p>Hi ${user.name},</p>
+        <p>We have successfully received your priority hold payment of ₹${payment.amount} for <strong>${accommodation.name}</strong>.</p>
+        <p><strong>Order ID:</strong> ${razorpay_order_id}<br/>
+        <strong>Transaction ID:</strong> ${razorpay_payment_id}</p>
+        <p>The property manager will contact you shortly to confirm the next steps. Thank you for choosing MH StayHub!</p>
+      `;
+      
+      // Send to User (if email exists)
+      if (user.email) {
+        await sendEmail({ to: user.email, subject: 'MH StayHub - Payment Receipt', html: emailHtml });
+      }
+
+      // Always send to Admin
+      await sendEmail({ to: 'bookings@mhstayhub.com', subject: `New Priority Hold: ${accommodation.name}`, html: emailHtml });
+    }
+
     res.status(200).json({ success: true, message: 'Payment verified successfully' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

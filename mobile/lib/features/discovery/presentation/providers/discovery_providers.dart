@@ -39,6 +39,9 @@ class SearchAccommodations extends _$SearchAccommodations {
     String? gender,
     double? maxPrice,
     String? collegeId,
+    double? lat,
+    double? lng,
+    int? radius,
   }) async {
     state = const AsyncValue.loading();
     try {
@@ -47,6 +50,9 @@ class SearchAccommodations extends _$SearchAccommodations {
         gender: gender,
         maxPrice: maxPrice,
         collegeId: collegeId,
+        lat: lat,
+        lng: lng,
+        radius: radius,
         limit: 20,
       );
       state = AsyncValue.data(results);

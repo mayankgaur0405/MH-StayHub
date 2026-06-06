@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.example.mh_stayhub",
+    "sha256_cert_fingerprints": [
+      "F9:39:6E:11:59:D8:9E:DC:D0:34:7B:FA:FA:37:6D:F9:4E:E8:85:8D:55:36:D1:73:37:08:AC:99:C0:D1:E7:64"
+    ]
+  }
+}]

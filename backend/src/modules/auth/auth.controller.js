@@ -1,32 +1,31 @@
 const jwt = require('jsonwebtoken');
 const User = require('../users/user.model');
-
-const MOCK_OTP = '123456';
-const isMsg91Configured = Boolean(process.env.MSG91_AUTH_KEY && process.env.MSG91_TEMPLATE_ID);
-
 const sendOtp = async (req, res) => {
   try {
     const { phone } = req.body;
     if (!phone) return res.status(400).json({ message: 'Phone number is required' });
 
-    // MVP fallback: keep OTP login available until MSG91 credentials are added.
-    if (!isMsg91Configured) {
-      await new Promise(resolve => setTimeout(resolve, 300));
+    // Clean phone number (remove +, spaces, etc.)
+    const cleanPhone = phone.replace(/\D/g, '');
 
-      return res.status(200).json({
-        message: `OTP sent successfully (MVP mock mode: use ${MOCK_OTP})`,
-        success: true,
-        mock: true,
-      });
+    // MSG91 Send OTP API
+    const url = `https://control.msg91.com/api/v5/otp?template_id=${process.env.MSG91_TEMPLATE_ID}&mobile=${cleanPhone}`;
+    const options = {
+      method: 'POST',
+      headers: {
+        'authkey': process.env.MSG91_AUTH_KEY,
+        'Content-Type': 'application/json'
+      }
+    };
+
+    const response = await fetch(url, options);
+    const data = await response.json();
+
+    if (data.type === 'error') {
+      return res.status(400).json({ message: data.message || 'Failed to send OTP', success: false });
     }
 
-    // TODO: Integrate MSG91 here when production SMS delivery is enabled.
-    // await axios.post(`msg91_url?authkey=${process.env.MSG91_AUTH_KEY}&mobiles=${phone}...`)
-    
-    // Simulating delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    res.status(200).json({ message: `OTP sent successfully (MVP mock mode: use ${MOCK_OTP})`, success: true, mock: true });
+    res.status(200).json({ message: 'OTP sent successfully', success: true });
   } catch (error) {
     res.status(500).json({ message: error.message, success: false });
   }
@@ -37,10 +36,23 @@ const verifyOtp = async (req, res) => {
     const { phone, otp, name } = req.body;
     if (!phone || !otp) return res.status(400).json({ message: 'Phone and OTP required' });
 
-    // MVP mock verification until MSG91 verification is enabled.
-    if (otp !== MOCK_OTP) {
-      return res.status(400).json({ message: 'Invalid OTP', success: false });
-    }
+    const cleanPhone = phone.replace(/\D/g, '');
+
+    // MSG91 Verify OTP API
+      const url = `https://control.msg91.com/api/v5/otp/verify?otp=${otp}&mobile=${cleanPhone}`;
+      const options = {
+        method: 'GET',
+        headers: {
+          'authkey': process.env.MSG91_AUTH_KEY
+        }
+      };
+
+      const response = await fetch(url, options);
+      const data = await response.json();
+
+      if (data.type === 'error') {
+        return res.status(400).json({ message: data.message || 'Invalid OTP', success: false });
+      }
 
     let user = await User.findOne({ phone });
     if (!user) {

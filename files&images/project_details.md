@@ -1,5 +1,8 @@
 # MH StayHub Documentation Manager & Technical Knowledge System
 
+
+chatgpt link : https://chatgpt.com/share/6a23b3ca-6a24-83a3-93d0-9d52eaa2cdb6
+
 *This document is the ultimate source of truth for MH StayHub. It is maintained strictly according to the Documentation Update Rule.*
 
 ---

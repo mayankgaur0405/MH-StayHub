@@ -2,6 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../auth/domain/user_model.dart';
 import '../../../leads/domain/lead_model.dart';
 import '../../data/profile_repository.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 
 part 'profile_provider.g.dart';
 
@@ -26,6 +27,9 @@ class UpdateProfile extends _$UpdateProfile {
       await ref.read(profileRepositoryProvider).updateProfile(name: name, email: email);
       // Invalidate profile cache so it re-fetches
       ref.invalidate(userProfileProvider);
+      // Also refresh the global auth state so the home screen greeting updates immediately
+      await ref.read(authControllerProvider.notifier).refreshUser();
+      
       state = const AsyncValue.data(null);
       return true;
     } catch (e, st) {

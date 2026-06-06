@@ -18,6 +18,9 @@ class AccommodationRepository {
     String? gender,
     double? maxPrice,
     String? collegeId,
+    double? lat,
+    double? lng,
+    int? radius,
   }) async {
     try {
       final queryParams = {
@@ -27,6 +30,9 @@ class AccommodationRepository {
         if (gender != null) 'gender': gender,
         if (maxPrice != null) 'maxPrice': maxPrice,
         if (collegeId != null) 'collegeId': collegeId,
+        if (lat != null) 'lat': lat,
+        if (lng != null) 'lng': lng,
+        if (radius != null) 'radius': radius,
       };
 
       final response = await _dio.get('/accommodations', queryParameters: queryParams);

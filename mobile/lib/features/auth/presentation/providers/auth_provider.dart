@@ -57,6 +57,10 @@ class AuthController extends _$AuthController {
     }
   }
 
+  Future<void> refreshUser() async {
+    await _checkAuthStatus();
+  }
+
   Future<void> logout() async {
     await ref.read(secureStorageProvider).deleteToken();
     state = const AuthUnauthenticated();

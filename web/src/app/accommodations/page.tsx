@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import AccommodationCard from '@/components/AccommodationCard';
 import { getAccommodations } from '@/services/api';
+import AccommodationsClient from './AccommodationsClient';
 
 export const metadata: Metadata = {
   title: 'Hostels, PGs & Co-Living in Greater Noida',
@@ -26,22 +26,8 @@ export default async function AccommodationsPage() {
         </p>
       </div>
 
-      {/* TODO: Client-side filter bar (V2) */}
-
-      {/* Listings */}
-      {accommodations.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-stagger">
-          {accommodations.map((acc) => (
-            <AccommodationCard key={acc._id} accommodation={acc} />
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-20">
-          <p className="text-5xl mb-4">🏠</p>
-          <h3 className="text-lg font-semibold text-foreground mb-2">Coming Soon</h3>
-          <p className="text-muted">We&apos;re actively onboarding verified accommodations. Check back soon!</p>
-        </div>
-      )}
+      {/* Client-side filters and listings */}
+      <AccommodationsClient initialData={accommodations} />
     </div>
   );
 }
