@@ -8,8 +8,8 @@ const sendOtp = async (req, res) => {
     // Clean phone number (remove +, spaces, etc.)
     const cleanPhone = phone.replace(/\D/g, '');
 
-    // MSG91 Send OTP API (Omitting template_id to use MSG91's default fallback template)
-    const url = `https://control.msg91.com/api/v5/otp?mobile=${cleanPhone}`;
+    // MSG91 Send OTP API
+    const url = `https://control.msg91.com/api/v5/otp?template_id=${process.env.MSG91_TEMPLATE_ID}&mobile=${cleanPhone}`;
     const options = {
       method: 'POST',
       headers: {
