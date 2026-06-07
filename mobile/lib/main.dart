@@ -34,14 +34,36 @@ void main() async {
     debugPrint('Firebase not initialized. Please run `flutterfire configure`: $e');
   }
 
-  // Initialize SharedPreferences
-  final prefs = await SharedPreferences.getInstance();
+  // Initialize SharedPreferences with retry (platform channel may not be ready immediately)
+  SharedPreferences? prefs;
+  for (int attempt = 0; attempt < 3; attempt++) {
+    try {
+      prefs = await SharedPreferences.getInstance();
+      break;
+    } catch (e) {
+      debugPrint('SharedPreferences init attempt ${attempt + 1} failed: $e');
+      if (attempt < 2) {
+        await Future.delayed(Duration(milliseconds: 300 * (attempt + 1)));
+      }
+    }
+  }
+
+  // If SharedPreferences still failed, create a fallback instance
+  // by clearing and retrying one more time
+  if (prefs == null) {
+    try {
+      prefs = await SharedPreferences.getInstance();
+    } catch (e) {
+      debugPrint('SharedPreferences completely unavailable: $e');
+    }
+  }
 
   runApp(
     // ProviderScope is required for Riverpod to work
     ProviderScope(
       overrides: [
-        sharedPreferencesProvider.overrideWithValue(prefs),
+        if (prefs != null)
+          sharedPreferencesProvider.overrideWithValue(prefs),
       ],
       child: const MHStayHubApp(),
     ),

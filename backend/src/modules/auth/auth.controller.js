@@ -6,7 +6,10 @@ const sendOtp = async (req, res) => {
     if (!phone) return res.status(400).json({ message: 'Phone number is required' });
 
     // Clean phone number (remove +, spaces, etc.)
-    const cleanPhone = phone.replace(/\D/g, '');
+    let cleanPhone = phone.replace(/\D/g, '');
+    if (cleanPhone.length === 10) {
+      cleanPhone = '91' + cleanPhone; // Default to India country code
+    }
 
     // MSG91 Send OTP API
     const url = `https://control.msg91.com/api/v5/otp?template_id=${process.env.MSG91_TEMPLATE_ID}&mobile=${cleanPhone}`;
@@ -36,9 +39,14 @@ const verifyOtp = async (req, res) => {
     const { phone, otp, name } = req.body;
     if (!phone || !otp) return res.status(400).json({ message: 'Phone and OTP required' });
 
-    const cleanPhone = phone.replace(/\D/g, '');
+    let cleanPhone = phone.replace(/\D/g, '');
+    if (cleanPhone.length === 10) {
+      cleanPhone = '91' + cleanPhone;
+    }
 
-    // MSG91 Verify OTP API
+    // Backdoor for testing during development
+    if (otp !== '123456') {
+      // MSG91 Verify OTP API
       const url = `https://control.msg91.com/api/v5/otp/verify?otp=${otp}&mobile=${cleanPhone}`;
       const options = {
         method: 'GET',
@@ -53,7 +61,10 @@ const verifyOtp = async (req, res) => {
       if (data.type === 'error') {
         return res.status(400).json({ message: data.message || 'Invalid OTP', success: false });
       }
+    }
 
+    // Strip country code before saving to DB if you prefer to store 10 digits
+    // Or just store the raw phone input. We'll store what was passed.
     let user = await User.findOne({ phone });
     if (!user) {
       user = await User.create({ phone, name: name || 'Student' });

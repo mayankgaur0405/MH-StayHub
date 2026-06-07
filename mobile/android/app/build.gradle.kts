@@ -27,6 +27,7 @@ android {
         targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        multiDexEnabled = true
     }
 
     val keystorePropertiesFile = rootProject.file("key.properties")
@@ -68,10 +69,13 @@ flutter {
 
 dependencies {
     // Other dependencies implicitly added by Flutter
+    implementation("androidx.multidex:multidex:2.0.1")
 }
 
 configurations.all {
     resolutionStrategy {
-        force("com.razorpay:checkout:1.6.39")
+        force("com.razorpay:checkout:1.6.33")
     }
 }
+
+

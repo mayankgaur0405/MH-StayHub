@@ -16,6 +16,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
+  bool _navigated = false;
 
   @override
   void initState() {
@@ -24,10 +25,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
     _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
     _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
     _controller.forward();
-
-    Future.delayed(const Duration(seconds: 2), () {
-      _navigateBasedOnAuth();
-    });
   }
 
   @override
@@ -36,25 +33,32 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
     super.dispose();
   }
 
-  void _navigateBasedOnAuth() {
-    if (!mounted) return;
-    final authState = ref.read(authControllerProvider);
+  void _navigate(AuthState authState) {
+    if (_navigated || !mounted) return;
 
     if (authState is AuthAuthenticated) {
+      _navigated = true;
       context.go('/home');
     } else if (authState is AuthUnauthenticated || authState is AuthError) {
+      _navigated = true;
       context.go('/onboarding');
     }
+    // AuthInitial and AuthLoading: do nothing, wait for a terminal state
   }
 
   @override
   Widget build(BuildContext context) {
+    // Listen for auth state changes and navigate when we get a terminal state
     ref.listen<AuthState>(authControllerProvider, (previous, next) {
-      if (next is AuthAuthenticated) {
-        context.go('/home');
-      } else if (next is AuthUnauthenticated || next is AuthError) {
-        context.go('/onboarding');
-      }
+      _navigate(next);
+    });
+
+    // Also check the current state on every build (handles the case where
+    // the auth check completed before ref.listen was registered)
+    final currentAuth = ref.watch(authControllerProvider);
+    // Use addPostFrameCallback to avoid navigating during build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _navigate(currentAuth);
     });
 
     return Scaffold(

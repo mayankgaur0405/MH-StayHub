@@ -27,8 +27,12 @@ class AuthController extends _$AuthController {
       final user = await ref.read(authRepositoryProvider).getMe();
       state = AuthAuthenticated(user);
     } catch (e) {
-      // Token is invalid or expired
-      await logout();
+      // Token is invalid or expired – ensure we always reach a terminal state
+      try {
+        await logout();
+      } catch (_) {
+        state = const AuthUnauthenticated();
+      }
     }
   }
 
