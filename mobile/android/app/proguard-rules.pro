@@ -1,1 +1,4 @@
 -keep class com.razorpay.** { *; }
+-dontwarn com.google.android.apps.nbu.paisa.inapp.client.**
+-dontwarn com.razorpay.**
+-dontwarn proguard.annotation.**

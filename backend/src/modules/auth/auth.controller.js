@@ -6,10 +6,7 @@ const sendOtp = async (req, res) => {
     if (!phone) return res.status(400).json({ message: 'Phone number is required' });
 
     // Clean phone number (remove +, spaces, etc.)
-    let cleanPhone = phone.replace(/\D/g, '');
-    if (cleanPhone.length === 10) {
-      cleanPhone = '91' + cleanPhone; // Default to India country code
-    }
+    const cleanPhone = phone.replace(/\D/g, '');
 
     // MSG91 Send OTP API
     const url = `https://control.msg91.com/api/v5/otp?template_id=${process.env.MSG91_TEMPLATE_ID}&mobile=${cleanPhone}`;
@@ -21,8 +18,10 @@ const sendOtp = async (req, res) => {
       }
     };
 
+    console.log(`[MSG91 Send] Calling URL: ${url}`);
     const response = await fetch(url, options);
     const data = await response.json();
+    console.log(`[MSG91 Send] Response:`, data);
 
     if (data.type === 'error') {
       return res.status(400).json({ message: data.message || 'Failed to send OTP', success: false });
@@ -39,10 +38,7 @@ const verifyOtp = async (req, res) => {
     const { phone, otp, name } = req.body;
     if (!phone || !otp) return res.status(400).json({ message: 'Phone and OTP required' });
 
-    let cleanPhone = phone.replace(/\D/g, '');
-    if (cleanPhone.length === 10) {
-      cleanPhone = '91' + cleanPhone;
-    }
+    const cleanPhone = phone.replace(/\D/g, '');
 
     // MSG91 Verify OTP API
     const url = `https://control.msg91.com/api/v5/otp/verify?otp=${otp}&mobile=${cleanPhone}`;
