@@ -44,27 +44,22 @@ const verifyOtp = async (req, res) => {
       cleanPhone = '91' + cleanPhone;
     }
 
-    // Backdoor for testing during development
-    if (otp !== '123456') {
-      // MSG91 Verify OTP API
-      const url = `https://control.msg91.com/api/v5/otp/verify?otp=${otp}&mobile=${cleanPhone}`;
-      const options = {
-        method: 'GET',
-        headers: {
-          'authkey': process.env.MSG91_AUTH_KEY
-        }
-      };
-
-      const response = await fetch(url, options);
-      const data = await response.json();
-
-      if (data.type === 'error') {
-        return res.status(400).json({ message: data.message || 'Invalid OTP', success: false });
+    // MSG91 Verify OTP API
+    const url = `https://control.msg91.com/api/v5/otp/verify?otp=${otp}&mobile=${cleanPhone}`;
+    const options = {
+      method: 'GET',
+      headers: {
+        'authkey': process.env.MSG91_AUTH_KEY
       }
+    };
+
+    const response = await fetch(url, options);
+    const data = await response.json();
+
+    if (data.type === 'error') {
+      return res.status(400).json({ message: data.message || 'Invalid OTP', success: false });
     }
 
-    // Strip country code before saving to DB if you prefer to store 10 digits
-    // Or just store the raw phone input. We'll store what was passed.
     let user = await User.findOne({ phone });
     if (!user) {
       user = await User.create({ phone, name: name || 'Student' });
