@@ -53,11 +53,18 @@ const verifyOtp = async (req, res) => {
       }
     };
 
+    console.log(`[MSG91 Verify] Calling URL: ${url}`);
     const response = await fetch(url, options);
     const data = await response.json();
+    console.log(`[MSG91 Verify] Response:`, data);
 
     if (data.type === 'error') {
-      return res.status(400).json({ message: data.message || 'Invalid OTP', success: false });
+      return res.status(400).json({ 
+        message: data.message === 'Mobile no. not found' 
+          ? `MSG91 Error: OTP session for ${cleanPhone} not found. Please resend.` 
+          : data.message || 'Invalid OTP', 
+        success: false 
+      });
     }
 
     let user = await User.findOne({ phone });

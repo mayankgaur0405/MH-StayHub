@@ -54,6 +54,13 @@ android {
                 "proguard-rules.pro"
             )
         }
+        debug {
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
     }
 }
 
@@ -70,6 +77,12 @@ flutter {
 dependencies {
     // Other dependencies implicitly added by Flutter
     implementation("androidx.multidex:multidex:2.0.1")
+}
+
+configurations.all {
+    resolutionStrategy {
+        force("com.razorpay:checkout:1.6.33")
+    }
 }
 
 
